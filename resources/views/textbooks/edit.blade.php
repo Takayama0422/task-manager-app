@@ -1,13 +1,19 @@
-@extends('layouts.auth')
+<!DOCTYPE html>
+<html lang="ja">
 
-@section('title', '教材名の編集')
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教材名の編集</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
 
-@section('content')
-    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">SYSTEM ADMINISTRATION</span>
+<body class="bg-slate-50 text-slate-800 antialiased flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 w-full max-w-md">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">SYSTEM
+            ADMINISTRATION</span>
         <h2 class="text-xl font-black text-slate-950 mb-6">⚙️ 教材名の編集 (ID: {{ sprintf('%02d', $majorId) }})</h2>
-
-        <x-error-message />
 
         <form method="POST" action="{{ route('textbooks.updateName', $majorId) }}" class="space-y-4">
             @csrf
@@ -31,4 +37,7 @@
             </div>
         </form>
     </div>
-@endsection
+
+</body>
+
+</html>

@@ -11,17 +11,12 @@ use Illuminate\Support\Facades\Route;
 class RouteServiceProvider extends ServiceProvider
 {
     /**
-     * The path to your application's "home" route.
-     *
-     * Typically, users are redirected here after authentication.
-     *
-     * @var string
+     * ログイン後のリダイレクト先
+     * PHP の const は静的解決のため env() は使用不可。
+     * 変更する場合はここを直接編集する。
      */
-    public const HOME = '/home';
+    public const HOME = '/textbooks';
 
-    /**
-     * Define your route model bindings, pattern filters, and other route configuration.
-     */
     public function boot(): void
     {
         RateLimiter::for('api', function (Request $request) {
