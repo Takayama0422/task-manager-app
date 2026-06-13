@@ -1,13 +1,28 @@
-@extends('layouts.auth')
+<!DOCTYPE html>
+<html lang="ja">
 
-@section('title', '新規ユーザー登録')
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新規ユーザー登録</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
 
-@section('content')
-    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+<body class="bg-slate-50 text-slate-800 antialiased flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 w-full max-w-md">
         <h2 class="text-2xl font-black text-slate-950 mb-2 text-center">アカウント作成</h2>
         <p class="text-xs text-slate-400 text-center mb-6">カリキュラム進捗管理をはじめましょう</p>
 
-        <x-error-message />
+        @if ($errors->any())
+            <div class="mb-4 p-3 bg-rose-50 border border-rose-100 text-rose-700 rounded-xl text-sm font-bold">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
         <form method="POST" action="{{ route('register') }}" class="space-y-4">
             @csrf
@@ -49,4 +64,7 @@
             </a>
         </div>
     </div>
-@endsection
+
+</body>
+
+</html>
