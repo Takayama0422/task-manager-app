@@ -9,10 +9,30 @@ class Textbook extends Model
 {
     use HasFactory;
 
-    // 正方向のリレーション：教材マスタから見て、進捗ログは1つ存在する
-   public function progressLog()
+    // ④ config化に対応したアクセサ
+    // ② display_title をモデルに移動
+    public function getDisplayTitleAttribute(): string
     {
-        // 🌟 hasOne に where 条件をチェーンし、現在ログインしているユーザーのログだけを対象にします
-        return $this->hasOne(ProgressLog::class)->where('user_id', auth()->id());
+        return $this->major_id
+            ? config('textbooks.categories')[$this->major_id] ?? '未定義のカテゴリ'
+            : ($this->custom_title ?? '未定義のカテゴリ');
+    }
+
+    // ⑥ 完了判定アクセサ
+    public function getIsCompletedAttribute(): bool
+    {
+        return $this->progressLog?->status == 2;
+    }
+
+    // ③ withDefault でコントローラーの if (!$progressLog) を不要に
+    public function progressLog()
+    {
+        return $this->hasOne(ProgressLog::class)
+            ->where('user_id', auth()->id())
+            ->withDefault([
+                'status'     => 0,
+                'is_flagged' => 0,
+                'memo'       => '',
+            ]);
     }
 }
