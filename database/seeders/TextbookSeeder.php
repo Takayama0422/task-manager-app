@@ -31,15 +31,15 @@ class TextbookSeeder extends Seeder
 
         // 13個のチュートリアルタイトル定義
         $titles = [
-            1  => '学習準備',
-            2  => '開発環境セットアップ',
-            3  => 'コマンドライン入門',
-            4  => 'Git入門',
-            5  => 'HTML & CSS入門',
-            6  => 'Docker入門',
-            7  => 'PHP入門',
-            8  => 'データベース & SQL入門',
-            9  => 'Laravel基礎',
+            1 => '学習準備',
+            2 => '開発環境セットアップ',
+            3 => 'コマンドライン入門',
+            4 => 'Git入門',
+            5 => 'HTML & CSS入門',
+            6 => 'Docker入門',
+            7 => 'PHP入門',
+            8 => 'データベース & SQL入門',
+            9 => 'Laravel基礎',
             10 => 'Laravel実践',
             11 => 'Git × GitHub実践',
             12 => 'Laravel × API',
@@ -57,10 +57,10 @@ class TextbookSeeder extends Seeder
             7 => [1 => 6, 2 => 6, 3 => 4, 4 => 3],
             8 => [1 => 6, 2 => 7, 3 => 5, 4 => 4],
             9 => [1 => 8, 2 => 5, 3 => 9, 4 => 9, 5 => 5, 6 => 5],
-           10 => [1 => 6, 2 => 4, 3 => 5, 4 => 6, 5 => 7, 6 => 6],
-           11 => [1 => 7, 2 => 8, 3 => 2, 4 => 1],
-           12 => [1 => 1, 2 => 4, 3 => 5, 4 => 1],
-           13 => [1 => 4, 2 => 5, 3 => 3, 4 => 2, 5 => 1, 6 => 3, 7 => 1, 8 => 3],
+            10 => [1 => 6, 2 => 4, 3 => 5, 4 => 6, 5 => 7, 6 => 6],
+            11 => [1 => 7, 2 => 8, 3 => 2, 4 => 1],
+            12 => [1 => 1, 2 => 4, 3 => 5, 4 => 1],
+            13 => [1 => 4, 2 => 5, 3 => 3, 4 => 2, 5 => 1, 6 => 3, 7 => 1, 8 => 3],
         ];
 
         $data = [];
@@ -70,9 +70,9 @@ class TextbookSeeder extends Seeder
             foreach ($midItems as $mid => $maxChapter) {
                 for ($chapter = 1; $chapter <= $maxChapter; $chapter++) {
                     $data[] = [
-                        'user_id'    => 1,
-                        'major_id'   => $major,
-                        'mid_sort'   => $mid,
+                        'user_id' => 1,
+                        'major_id' => $major,
+                        'mid_sort' => $mid,
                         'chapter_no' => $chapter,
                         'created_at' => $now,
                         'updated_at' => $now,

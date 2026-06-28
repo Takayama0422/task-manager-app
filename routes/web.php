@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TextbookController;
+use Illuminate\Support\Facades\Route;
 
 // 🟢 誰でもアクセスできるルート（例：ウェルカム画面など、必要に応じて）
 Route::get('/', function () {
@@ -10,13 +10,13 @@ Route::get('/', function () {
 
 // 🌟【修正】ログイン（認証）しているユーザーだけがアクセスできるグループ
 Route::middleware(['auth'])->group(function () {
-    
+
     // 教材一覧画面
     Route::get('/textbooks', [TextbookController::class, 'index'])->name('textbooks.index');
-    
+
     // 教材詳細画面
     Route::get('/textbooks/{major_id}', [TextbookController::class, 'show'])->name('textbooks.show');
-    
+
     // 非同期進捗更新API
     Route::post('/textbooks/{id}/status', [TextbookController::class, 'updateStatus'])->name('textbooks.updateStatus');
 

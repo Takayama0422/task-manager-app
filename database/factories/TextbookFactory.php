@@ -13,9 +13,9 @@ class TextbookFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id'    => User::factory(),
-            'major_id'   => $this->faker->numberBetween(1, 13),
-            'mid_sort'   => $this->faker->numberBetween(1, 5),
+            'user_id' => User::factory(),
+            'major_id' => $this->faker->numberBetween(1, 13),
+            'mid_sort' => $this->faker->numberBetween(1, 5),
             'chapter_no' => $this->faker->numberBetween(1, 10),
         ];
     }

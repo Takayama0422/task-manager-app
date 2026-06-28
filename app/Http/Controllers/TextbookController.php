@@ -6,6 +6,7 @@ use App\Models\Textbook;
 use App\Models\ProgressLog;
 use App\Services\DashboardService;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Http\Requests\UpdateStatusRequest;
 
 class TextbookController extends Controller
@@ -19,7 +20,11 @@ class TextbookController extends Controller
         );
     }
 
-    public function show($major_id)
+    /**
+     * 指定した大項目（major_id）の詳細進捗画面を表示する
+     * user_id で絞り込むことで、他ユーザーのデータへのアクセスを防ぐ（① ⑤ 対応）
+     */
+    public function show(int $major_id)
     {
         $userId = auth()->id();
 
@@ -41,7 +46,11 @@ class TextbookController extends Controller
         ]);
     }
 
-    public function updateStatus(UpdateStatusRequest $request, $id)
+    /**
+     * チャプターの進捗（ステータス・フラグ・メモ）を非同期で更新する
+     * user_id は auth() から取得し、リクエストパラメーターには依存しない（① 対応）
+     */
+    public function updateStatus(UpdateStatusRequest $request, int $id): JsonResponse
     {
         $userId = auth()->id();
 
@@ -52,7 +61,8 @@ class TextbookController extends Controller
             ],
             [
                 'status'     => $request->status,
-                'is_flagged' => filter_var($request->is_flagged, FILTER_VALIDATE_BOOLEAN) || $request->is_flagged == 1,
+                'is_flagged' => filter_var($request->is_flagged, FILTER_VALIDATE_BOOLEAN)
+                    || $request->is_flagged == 1,
                 'memo'       => $request->memo,
             ]
         );
@@ -63,7 +73,10 @@ class TextbookController extends Controller
         ]);
     }
 
-    public function edit($major_id)
+    /**
+     * 教材名の編集画面を表示する（管理者のみ）
+     */
+    public function edit(int $major_id)
     {
         $this->authorize('admin', Textbook::class);
 
@@ -76,10 +89,16 @@ class TextbookController extends Controller
         ]);
     }
 
-    public function updateName(Request $request, $major_id)
+    /**
+     * 教材名を更新する（管理者のみ）
+     * 現在は認可の疎通確認のみ。本実装時はDB更新処理を追加する。
+     */
+    public function updateName(Request $request, int $major_id)
     {
         $this->authorize('admin', Textbook::class);
 
-        return redirect()->route('textbooks.index')->with('success', '教材名を更新しました（認可成功）');
+        return redirect()
+            ->route('textbooks.index')
+            ->with('success', '教材名を更新しました。');
     }
 }

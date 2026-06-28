@@ -10,12 +10,12 @@ class FlaggedTaskResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'         => $this->id,
-            'major_id'   => $this->major_id,
-            'mid_sort'   => $this->mid_sort,
+            'id' => $this->id,
+            'major_id' => $this->major_id,
+            'mid_sort' => $this->mid_sort,
             'chapter_no' => $this->chapter_no,
-            'status'     => $this->progressLog->status,
-            'memo'       => $this->progressLog->memo,
+            'status' => $this->progressLog->status,
+            'memo' => $this->progressLog->memo,
             'flagged_at' => $this->progressLog->updated_at->toIso8601String(),
         ];
     }
