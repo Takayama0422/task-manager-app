@@ -4,94 +4,54 @@ namespace App\Http\Controllers;
 
 use App\Models\Textbook;
 use App\Models\ProgressLog;
+use App\Services\DashboardService;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Http\Requests\UpdateStatusRequest;
-use App\Http\Requests\UpdateNameRequest;
 
 class TextbookController extends Controller
 {
-    private $majorCategoryMap = [
-        1  => '学習準備',
-        2  => '開発環境セットアップ',
-        3  => 'コマンドライン入門',
-        4  => 'Git入門',
-        5  => 'HTML & CSS入門',
-        6  => 'Docker入門',
-        7  => 'PHP入門',
-        8  => 'データベース & SQL入門',
-        9  => 'Laravel基礎',
-        10 => 'Laravel実践',
-        11 => 'Git × GitHub実践',
-        12 => 'Laravel × API',
-        13 => '総合アプリケーション開発',
-    ];
-
-    public function index()
+    /**
+     * ダッシュボード（教材一覧）を表示する
+     * 集計処理は DashboardService に委譲し、Controller は薄く保つ
+     */
+    public function index(DashboardService $dashboardService)
     {
-        $userId = auth()->id(); // ✅ ハードコードから認証ユーザーに変更
-
-        $allTextbooks = Textbook::where('user_id', $userId)->with('progressLog')->get();
-
-        $totalCount = $allTextbooks->count();
-        $completedCount = $allTextbooks->filter(function ($textbook) {
-            return $textbook->progressLog && $textbook->progressLog->status == 2;
-        })->count();
-        $progressRate = $totalCount > 0 ? round(($completedCount / $totalCount) * 100) : 0;
-
-        $textbooksGrouped = $allTextbooks->groupBy('major_id')->map(function ($group) {
-            $groupTotal = $group->count();
-            $groupCompleted = $group->filter(function ($textbook) {
-                return $textbook->progressLog && $textbook->progressLog->status == 2;
-            })->count();
-            $group->progress_rate = $groupTotal > 0 ? round(($groupCompleted / $groupTotal) * 100) : 0;
-            return $group;
-        });
-
-        $flaggedChapters = $allTextbooks->filter(function ($textbook) {
-            return $textbook->progressLog && $textbook->progressLog->is_flagged;
-        });
-
-        return view('textbooks.index', [
-            'textbooks'       => $textbooksGrouped,
-            'categories'      => $this->majorCategoryMap,
-            'progressRate'    => $progressRate,
-            'flaggedChapters' => $flaggedChapters,
-        ]);
+        return view(
+            'textbooks.index',
+            $dashboardService->getDashboardData(auth()->id())
+        );
     }
 
-    public function show($major_id)
+    /**
+     * 指定した大項目（major_id）の詳細進捗画面を表示する
+     * user_id で絞り込むことで、他ユーザーのデータへのアクセスを防ぐ（① ⑤ 対応）
+     */
+    public function show(int $major_id)
     {
-        $textbooks = Textbook::where('major_id', $major_id)
+        $userId = auth()->id();
+
+        $textbooks = Textbook::where('user_id', $userId)
+            ->where('major_id', $major_id)
             ->with('progressLog')
             ->orderBy('mid_sort')
             ->orderBy('chapter_no')
             ->get();
 
-        $textbooks->map(function ($textbook) {
-            $textbook->display_title = $textbook->major_id
-                ? ($this->majorCategoryMap[$textbook->major_id] ?? '未定義のカテゴリ')
-                : $textbook->custom_title;
-
-            if (!$textbook->progressLog) {
-                $textbook->setRelation('progressLog', new ProgressLog([
-                    'status'     => 0,
-                    'is_flagged' => false,
-                    'memo'       => ''
-                ]));
-            }
-            return $textbook;
-        });
-
         return view('textbooks.show', [
             'textbooks'    => $textbooks,
-            'currentTitle' => $this->majorCategoryMap[$major_id] ?? 'カスタム教材',
+            'currentTitle' => config('textbook.categories')[$major_id] ?? 'カスタム教材',
             'majorId'      => $major_id,
         ]);
     }
 
-    public function updateStatus(UpdateStatusRequest $request, $id)
+    /**
+     * チャプターの進捗（ステータス・フラグ・メモ）を非同期で更新する
+     * user_id は auth() から取得し、リクエストパラメーターには依存しない（① 対応）
+     */
+    public function updateStatus(UpdateStatusRequest $request, int $id): JsonResponse
     {
-        $userId = auth()->id(); // ✅ ハードコードから認証ユーザーに変更
+        $userId = auth()->id();
 
         ProgressLog::updateOrCreate(
             [
@@ -100,22 +60,26 @@ class TextbookController extends Controller
             ],
             [
                 'status'     => $request->status,
-                'is_flagged' => filter_var($request->is_flagged, FILTER_VALIDATE_BOOLEAN) || $request->is_flagged == 1,
+                'is_flagged' => filter_var($request->is_flagged, FILTER_VALIDATE_BOOLEAN)
+                    || $request->is_flagged == 1,
                 'memo'       => $request->memo,
             ]
         );
 
         return response()->json([
             'success' => true,
-            'message' => '正常に更新されました。'
+            'message' => '正常に更新されました。',
         ]);
     }
 
-    public function edit($major_id)
+    /**
+     * 教材名の編集画面を表示する（管理者のみ）
+     */
+    public function edit(int $major_id)
     {
         $this->authorize('admin', Textbook::class);
 
-        $categoryName = $this->majorCategoryMap[$major_id] ?? abort(404);
+        $categoryName = config('textbooks.categories')[$major_id] ?? abort(404);
 
         return view('textbooks.edit', [
             'majorId'      => $major_id,
@@ -123,10 +87,16 @@ class TextbookController extends Controller
         ]);
     }
 
-    public function updateName(Request $request, $major_id)
+    /**
+     * 教材名を更新する（管理者のみ）
+     * 現在は認可の疎通確認のみ。本実装時はDB更新処理を追加する。
+     */
+    public function updateName(Request $request, int $major_id)
     {
         $this->authorize('admin', Textbook::class);
 
-        return redirect()->route('textbooks.index')->with('success', '教材名を更新しました（認可成功）');
+        return redirect()
+            ->route('textbooks.index')
+            ->with('success', '教材名を更新しました。');
     }
 }

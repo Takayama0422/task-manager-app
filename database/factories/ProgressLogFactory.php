@@ -14,11 +14,11 @@ class ProgressLogFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id'     => User::factory(),
+            'user_id' => User::factory(),
             'textbook_id' => Textbook::factory(),
-            'status'      => $this->faker->randomElement([0, 1, 2]),
-            'is_flagged'  => 0,
-            'memo'        => $this->faker->optional()->sentence(),
+            'status' => $this->faker->randomElement([0, 1, 2]),
+            'is_flagged' => 0,
+            'memo' => $this->faker->optional()->sentence(),
         ];
     }
 

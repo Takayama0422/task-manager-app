@@ -10,12 +10,12 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::table('users', function (Blueprint $table) {
-        // 🌟 管理者フラグを追加（デフォルトは 0:一般ユーザー、emailの後ろに配置）
-        $table->boolean('is_admin')->default(false)->after('email');
-    });
-}
+    {
+        Schema::table('users', function (Blueprint $table) {
+            // 🌟 管理者フラグを追加（デフォルトは 0:一般ユーザー、emailの後ろに配置）
+            $table->boolean('is_admin')->default(false)->after('email');
+        });
+    }
 
     public function down(): void
     {

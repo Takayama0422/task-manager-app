@@ -2,20 +2,35 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\TokenController;
 use App\Http\Controllers\Api\FlaggedTaskController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
 |
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
+| 【認証フロー】
+| 1. POST /api/token   → トークン発行（メール・パスワードで認証）
+| 2. GET  /api/flagged → トークンをヘッダーに付けてアクセス
+| 3. DELETE /api/token → トークン失効（ログアウト）
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// ① トークン発行（認証不要）
+Route::post('/token', [TokenController::class, 'issue']);
 
-Route::get('/flagged', [FlaggedTaskController::class, 'index']);
+// ② 認証済みユーザーのみアクセス可能
+Route::middleware('auth:sanctum')->group(function () {
+
+    // ログインユーザー情報の取得
+    Route::get('/user', fn(Request $request) => $request->user());
+
+    // フラグ付き教材一覧
+    // GET /api/flagged
+    // Authorization: Bearer {token} ヘッダーが必要
+    Route::get('/flagged', [FlaggedTaskController::class, 'index']);
+
+    // トークン失効（ログアウト）
+    Route::delete('/token', [TokenController::class, 'revoke']);
+});

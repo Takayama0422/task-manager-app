@@ -15,9 +15,9 @@ class UpdateStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status'     => 'required|in:0,1,2',
+            'status' => 'required|in:0,1,2',
             'is_flagged' => 'required',
-            'memo'       => 'nullable|string|max:1000',
+            'memo' => 'nullable|string|max:1000',
         ];
     }
 }

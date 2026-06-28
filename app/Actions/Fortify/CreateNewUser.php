@@ -2,13 +2,12 @@
 
 namespace App\Actions\Fortify;
 
-use App\Models\User;
 use App\Models\Textbook;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
-use Illuminate\Support\Facades\DB;
 
 class CreateNewUser implements CreatesNewUsers
 {
@@ -35,7 +34,7 @@ class CreateNewUser implements CreatesNewUsers
 
         // 🌟 データベースの不整合を防ぐため、トランザクション処理の中で実行します
         return DB::transaction(function () use ($input) {
-            
+
             // 1. まずは新しいユーザーを作成
             $user = User::create([
                 'name' => $input['name'],
@@ -46,19 +45,19 @@ class CreateNewUser implements CreatesNewUsers
             // 2. 🌟 新規ユーザー用の「13個の教材マスターデータ」を自動生成
             // 各大項目ごとのチャプター数（節数）の定義マップ
             $curriculumStructure = [
-                1  => 5,  // 学習準備
-                2  => 4,  // 開発環境セットアップ
-                3  => 8,  // コマンドライン入門
-                4  => 10, // Git入門
-                5  => 6,  // HTML & CSS入門
-                6  => 15, // Docker入門
-                7  => 5,  // PHP入門
-                8  => 6,  // データベース & SQL入門
-                9  => 4,  // Laravel基礎
+                1 => 5,  // 学習準備
+                2 => 4,  // 開発環境セットアップ
+                3 => 8,  // コマンドライン入門
+                4 => 10, // Git入門
+                5 => 6,  // HTML & CSS入門
+                6 => 15, // Docker入門
+                7 => 5,  // PHP入門
+                8 => 6,  // データベース & SQL入門
+                9 => 4,  // Laravel基礎
                 10 => 8,  // Laravel実践
                 11 => 5,  // Git × GitHub実践
                 12 => 12, // Laravel × API
-                13 => 5   // 総合アプリケーション開発
+                13 => 5,   // 総合アプリケーション開発
             ];
 
             $insertData = [];
@@ -68,9 +67,9 @@ class CreateNewUser implements CreatesNewUsers
             foreach ($curriculumStructure as $majorId => $chapterCount) {
                 for ($chapterNo = 1; $chapterNo <= $chapterCount; $chapterNo++) {
                     $insertData[] = [
-                        'user_id'    => $user->id, // いま作成されたユーザーのID
-                        'major_id'   => $majorId,
-                        'mid_sort'   => $chapterNo, // 節の番号として使用
+                        'user_id' => $user->id, // いま作成されたユーザーのID
+                        'major_id' => $majorId,
+                        'mid_sort' => $chapterNo, // 節の番号として使用
                         'chapter_no' => 1,          // 最小単位の小項目（一旦すべて1で初期化）
                         'created_at' => $now,
                         'updated_at' => $now,

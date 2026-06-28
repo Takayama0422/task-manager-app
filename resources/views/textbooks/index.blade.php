@@ -120,10 +120,10 @@
                 <a href="{{ route('textbooks.show', $majorId) }}"
                     class="group block bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-md hover:border-slate-200 transition-all duration-300">
 
-                    {{-- グラデーション帯（TOPICラベルのみ） --}}
+                    {{-- グラデーション帯（tutorialラベルのみ） --}}
                     <div class="px-4 py-3" style="background: {{ $gradient }}">
                         <span class="text-[10px] font-mono font-bold tracking-wider text-white/85">
-                            TOPIC {{ sprintf('%02d', $majorId) }}
+                            tutorial {{ sprintf('%02d', $majorId) }}
                         </span>
                     </div>
 

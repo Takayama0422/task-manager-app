@@ -4,21 +4,22 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProgressLog;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class FlaggedTaskController extends Controller
 {
+    /**
+     * ログインユーザーのフラグ付き教材一覧をJSON形式で返す
+     *
+     * ① user_id をリクエストパラメーターから受け取る設計を廃止
+     * Sanctum 認証により auth()->user() からユーザーを特定することで、
+     * 他ユーザーのデータへのアクセスを防ぐ
+     */
     public function index(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'user_id' => ['required', 'integer', 'exists:users,id'],
-        ]);
+        $userId = $request->user()->id;
 
-        $userId = (int) $validated['user_id'];
-
-        // progressLog() リレーションは auth()->id() に依存するため
-        // ProgressLog を起点に textbooks を JOIN して取得
         $flaggedLogs = ProgressLog::with('textbook')
             ->join('textbooks', 'progress_logs.textbook_id', '=', 'textbooks.id')
             ->where('progress_logs.user_id', $userId)
@@ -29,7 +30,7 @@ class FlaggedTaskController extends Controller
             ->select('progress_logs.*')
             ->get();
 
-        $tasks = $flaggedLogs->map(fn($log) => [
+        $tasks = $flaggedLogs->map(fn(ProgressLog $log) => [
             'id'         => $log->textbook->id,
             'major_id'   => $log->textbook->major_id,
             'mid_sort'   => $log->textbook->mid_sort,
