@@ -11,10 +11,7 @@ use App\Http\Requests\UpdateStatusRequest;
 
 class TextbookController extends Controller
 {
-    /**
-     * ダッシュボード（教材一覧）を表示する
-     * 集計処理は DashboardService に委譲し、Controller は薄く保つ
-     */
+    // ① DashboardService をDI（依存性注入）で受け取る
     public function index(DashboardService $dashboardService)
     {
         return view(
@@ -31,6 +28,7 @@ class TextbookController extends Controller
     {
         $userId = auth()->id();
 
+        // ⑤ user_id 条件を追加（セキュリティ修正）
         $textbooks = Textbook::where('user_id', $userId)
             ->where('major_id', $major_id)
             ->with('progressLog')
@@ -38,9 +36,12 @@ class TextbookController extends Controller
             ->orderBy('chapter_no')
             ->get();
 
+        // ② display_title はモデルのアクセサで自動生成されるため不要
+        // ③ withDefault により progressLog が null になることはないため if 不要
+
         return view('textbooks.show', [
             'textbooks'    => $textbooks,
-            'currentTitle' => config('textbook.categories')[$major_id] ?? 'カスタム教材',
+            'currentTitle' => config('textbooks.categories')[$major_id] ?? 'カスタム教材',
             'majorId'      => $major_id,
         ]);
     }
@@ -79,6 +80,7 @@ class TextbookController extends Controller
     {
         $this->authorize('admin', Textbook::class);
 
+        // ④ config から取得
         $categoryName = config('textbooks.categories')[$major_id] ?? abort(404);
 
         return view('textbooks.edit', [

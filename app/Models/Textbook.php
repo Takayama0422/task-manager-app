@@ -9,10 +9,8 @@ class Textbook extends Model
 {
     use HasFactory;
 
-    /**
-     * 教材の表示タイトルを返すアクセサ
-     * major_id があれば config のカテゴリ名、なければ custom_title を使用
-     */
+    // ④ config化に対応したアクセサ
+    // ② display_title をモデルに移動
     public function getDisplayTitleAttribute(): string
     {
         return $this->major_id
@@ -20,26 +18,17 @@ class Textbook extends Model
             : ($this->custom_title ?? '未定義のカテゴリ');
     }
 
-    /**
-     * 学習完了しているかどうかを返すアクセサ
-     * status == 2 を「完了」として扱う
-     */
+    // ⑥ 完了判定アクセサ
     public function getIsCompletedAttribute(): bool
     {
         return $this->progressLog?->status == 2;
     }
 
-    /**
-     * 進捗ログとのリレーション
-     *
-     * ② auth()->id() をモデル内で呼ばない設計に変更
-     * user_id の絞り込みは Controller / Service 側で行う
-     * withDefault により progressLog が null になることはなく、
-     * Controller 側での null チェックが不要になる
-     */
+    // ③ withDefault でコントローラーの if (!$progressLog) を不要に
     public function progressLog()
     {
         return $this->hasOne(ProgressLog::class)
+            ->where('user_id', auth()->id())
             ->withDefault([
                 'status'     => 0,
                 'is_flagged' => 0,

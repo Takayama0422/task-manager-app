@@ -56,31 +56,46 @@
             </div>
         </header>
 
+        {{-- ⚠️ フラグあり または メモあり のチャプター --}}
         @if($flaggedChapters->count() > 0)
-            <div class="mb-10 bg-rose-50/60 border border-rose-100 rounded-2xl p-6 shadow-sm">
+            <div class="mb-10 bg-amber-50/60 border border-amber-100 rounded-2xl p-6 shadow-sm">
                 <div class="flex items-center gap-2 mb-4">
                     <span class="flex h-3 w-3 relative">
                         <span
-                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
                     </span>
-                    <h2 class="text-base font-black text-rose-900">⚠️ 質問中・要確認のチャプター（{{ $flaggedChapters->count() }}件）</h2>
+                    <h2 class="text-base font-black text-amber-900">📋 質問あり・メモ記録済みのチャプター（{{ $flaggedChapters->count() }}件）
+                    </h2>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     @foreach($flaggedChapters as $chapter)
                         @php $parentTitle = $categories[$chapter->major_id] ?? '未定義の教材'; @endphp
                         <div
-                            class="flex items-start justify-between bg-white border border-rose-100 rounded-xl p-3 shadow-sm hover:border-rose-200 transition-colors">
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center gap-2">
+                            class="bg-white border border-amber-100 rounded-xl p-3 shadow-sm hover:border-amber-200 transition-colors">
+
+                            {{-- ヘッダー行：ID・教材名・フラグバッジ --}}
+                            <div class="flex items-center gap-2 mb-2">
+                                <span
+                                    class="text-[9px] font-mono font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded whitespace-nowrap">
+                                    ID: {{ $chapter->major_id }}-{{ $chapter->mid_sort }}-{{ $chapter->chapter_no }}
+                                </span>
+                                <span class="text-xs font-bold text-slate-600 truncate">{{ $parentTitle }}</span>
+                                @if($chapter->progressLog->is_flagged)
                                     <span
-                                        class="text-[9px] font-mono font-bold bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded">
-                                        ID: {{ $chapter->major_id }}-{{ $chapter->mid_sort }}-{{ $chapter->chapter_no }}
-                                    </span>
-                                    <span class="text-xs font-bold text-slate-500 truncate">{{ $parentTitle }}</span>
-                                </div>
+                                        class="ml-auto text-[10px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded whitespace-nowrap">⚠️
+                                        質問あり</span>
+                                @endif
                             </div>
+
+                            {{-- メモ内容（あれば表示） --}}
+                            @if(!empty($chapter->progressLog->memo))
+                                <p class="text-xs text-slate-500 bg-slate-50 rounded-lg px-2.5 py-2 leading-relaxed line-clamp-2">
+                                    💡 {{ $chapter->progressLog->memo }}
+                                </p>
+                            @endif
+
                         </div>
                     @endforeach
                 </div>
@@ -120,14 +135,12 @@
                 <a href="{{ route('textbooks.show', $majorId) }}"
                     class="group block bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-md hover:border-slate-200 transition-all duration-300">
 
-                    {{-- グラデーション帯（tutorialラベルのみ） --}}
                     <div class="px-4 py-3" style="background: {{ $gradient }}">
                         <span class="text-[10px] font-mono font-bold tracking-wider text-white/85">
                             tutorial {{ sprintf('%02d', $majorId) }}
                         </span>
                     </div>
 
-                    {{-- 白地エリア --}}
                     <div class="px-4 pt-3 pb-4 flex flex-col gap-3">
                         <div class="flex items-start justify-between gap-2">
                             <h3
