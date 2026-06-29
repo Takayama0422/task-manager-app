@@ -16,9 +16,9 @@ class DashboardService
             ->get();
 
         return [
-            'textbooks'       => $this->groupTextbooks($allTextbooks),
-            'categories'      => config('textbooks.categories'),
-            'progressRate'    => $this->calcProgressRate($allTextbooks),
+            'textbooks' => $this->groupTextbooks($allTextbooks),
+            'categories' => config('textbooks.categories'),
+            'progressRate' => $this->calcProgressRate($allTextbooks),
             'flaggedChapters' => $this->extractFlaggedChapters($allTextbooks),
         ];
     }
@@ -29,7 +29,9 @@ class DashboardService
     private function calcProgressRate($textbooks): int
     {
         $total = $textbooks->count();
-        if ($total === 0) return 0;
+        if ($total === 0) {
+            return 0;
+        }
 
         $completed = $textbooks->where('is_completed', true)->count();
 
@@ -42,7 +44,7 @@ class DashboardService
     private function groupTextbooks($textbooks)
     {
         return $textbooks->groupBy('major_id')->map(function ($group) {
-            $total     = $group->count();
+            $total = $group->count();
             $completed = $group->where('is_completed', true)->count();
 
             $group->progress_rate = $total > 0
@@ -60,7 +62,8 @@ class DashboardService
     {
         return $textbooks->filter(function ($textbook) {
             $log = $textbook->progressLog;
-            return $log->is_flagged || !empty($log->memo);
+
+            return $log->is_flagged || ! empty($log->memo);
         });
     }
 }

@@ -24,14 +24,14 @@ class TokenController extends Controller
     public function issue(Request $request): JsonResponse
     {
         $request->validate([
-            'email'    => ['required', 'email'],
+            'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
         $user = User::where('email', $request->email)->first();
 
         // ユーザーが存在しない、またはパスワードが一致しない場合
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['メールアドレスまたはパスワードが正しくありません。'],
             ]);

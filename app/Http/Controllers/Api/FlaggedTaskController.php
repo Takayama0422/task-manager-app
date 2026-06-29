@@ -30,20 +30,20 @@ class FlaggedTaskController extends Controller
             ->select('progress_logs.*')
             ->get();
 
-        $tasks = $flaggedLogs->map(fn(ProgressLog $log) => [
-            'id'         => $log->textbook->id,
-            'major_id'   => $log->textbook->major_id,
-            'mid_sort'   => $log->textbook->mid_sort,
+        $tasks = $flaggedLogs->map(fn (ProgressLog $log) => [
+            'id' => $log->textbook->id,
+            'major_id' => $log->textbook->major_id,
+            'mid_sort' => $log->textbook->mid_sort,
             'chapter_no' => $log->textbook->chapter_no,
-            'status'     => $log->status,
-            'memo'       => $log->memo,
+            'status' => $log->status,
+            'memo' => $log->memo,
             'flagged_at' => $log->updated_at->toIso8601String(),
         ]);
 
         return response()->json([
             'user_id' => $userId,
-            'count'   => $tasks->count(),
-            'tasks'   => $tasks->values(),
+            'count' => $tasks->count(),
+            'tasks' => $tasks->values(),
         ]);
     }
 }
