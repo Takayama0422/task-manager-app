@@ -30,9 +30,9 @@ class Textbook extends Model
         return $this->hasOne(ProgressLog::class)
             ->where('user_id', auth()->id())
             ->withDefault([
-                'status'     => 0,
+                'status' => 0,
                 'is_flagged' => 0,
-                'memo'       => '',
+                'memo' => '',
             ]);
     }
 }

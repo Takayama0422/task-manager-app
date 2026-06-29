@@ -1,9 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\FlaggedTaskController;
+use App\Http\Controllers\Api\TokenController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\TokenController;
-use App\Http\Controllers\Api\FlaggedTaskController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,7 +24,7 @@ Route::post('/token', [TokenController::class, 'issue']);
 Route::middleware('auth:sanctum')->group(function () {
 
     // ログインユーザー情報の取得
-    Route::get('/user', fn(Request $request) => $request->user());
+    Route::get('/user', fn (Request $request) => $request->user());
 
     // フラグ付き教材一覧
     // GET /api/flagged

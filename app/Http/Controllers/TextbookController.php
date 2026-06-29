@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Textbook;
-use App\Models\ProgressLog;
-use App\Services\DashboardService;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use App\Http\Requests\UpdateStatusRequest;
+use App\Models\ProgressLog;
+use App\Models\Textbook;
+use App\Services\DashboardService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class TextbookController extends Controller
 {
@@ -40,9 +40,9 @@ class TextbookController extends Controller
         // ③ withDefault により progressLog が null になることはないため if 不要
 
         return view('textbooks.show', [
-            'textbooks'    => $textbooks,
+            'textbooks' => $textbooks,
             'currentTitle' => config('textbooks.categories')[$major_id] ?? 'カスタム教材',
-            'majorId'      => $major_id,
+            'majorId' => $major_id,
         ]);
     }
 
@@ -56,14 +56,14 @@ class TextbookController extends Controller
 
         ProgressLog::updateOrCreate(
             [
-                'user_id'     => $userId,
+                'user_id' => $userId,
                 'textbook_id' => $id,
             ],
             [
-                'status'     => $request->status,
+                'status' => $request->status,
                 'is_flagged' => filter_var($request->is_flagged, FILTER_VALIDATE_BOOLEAN)
                     || $request->is_flagged == 1,
-                'memo'       => $request->memo,
+                'memo' => $request->memo,
             ]
         );
 
@@ -84,7 +84,7 @@ class TextbookController extends Controller
         $categoryName = config('textbooks.categories')[$major_id] ?? abort(404);
 
         return view('textbooks.edit', [
-            'majorId'      => $major_id,
+            'majorId' => $major_id,
             'categoryName' => $categoryName,
         ]);
     }

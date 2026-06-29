@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Textbook;
 
-use App\Models\ProgressLog;
 use App\Models\Textbook;
 use App\Models\User;
 use Tests\TestCase;
@@ -87,38 +86,38 @@ class TextbookPolicyTest extends TestCase
     /** @test */
     public function 自分の教材の進捗を更新できる(): void
     {
-        $user     = User::factory()->create();
+        $user = User::factory()->create();
         $textbook = Textbook::factory()->create(['user_id' => $user->id]);
 
         $this->actingAs($user)
             ->postJson(route('textbooks.updateStatus', $textbook->id), [
-                'status'     => 1,
+                'status' => 1,
                 'is_flagged' => false,
-                'memo'       => 'テストメモ',
+                'memo' => 'テストメモ',
             ])
             ->assertStatus(200)
             ->assertJson(['success' => true]);
     }
 
     /** @test */
-    public function 進捗更新でProgressLogが正しく保存される(): void
+    public function 進捗更新で_progress_logが正しく保存される(): void
     {
-        $user     = User::factory()->create();
+        $user = User::factory()->create();
         $textbook = Textbook::factory()->create(['user_id' => $user->id]);
 
         $this->actingAs($user)
             ->postJson(route('textbooks.updateStatus', $textbook->id), [
-                'status'     => 2,
+                'status' => 2,
                 'is_flagged' => 1,
-                'memo'       => '重要メモ',
+                'memo' => '重要メモ',
             ]);
 
         $this->assertDatabaseHas('progress_logs', [
-            'user_id'     => $user->id,
+            'user_id' => $user->id,
             'textbook_id' => $textbook->id,
-            'status'      => 2,
-            'is_flagged'  => 1,
-            'memo'        => '重要メモ',
+            'status' => 2,
+            'is_flagged' => 1,
+            'memo' => '重要メモ',
         ]);
     }
 
@@ -129,15 +128,15 @@ class TextbookPolicyTest extends TestCase
     /** @test */
     public function 他人の教材の進捗は更新できない(): void
     {
-        $owner    = User::factory()->create();
+        $owner = User::factory()->create();
         $attacker = User::factory()->create();
         $textbook = Textbook::factory()->create(['user_id' => $owner->id]);
 
         $this->actingAs($attacker)
             ->postJson(route('textbooks.updateStatus', $textbook->id), [
-                'status'     => 2,
+                'status' => 2,
                 'is_flagged' => 1,
-                'memo'       => '不正アクセス',
+                'memo' => '不正アクセス',
             ])
             ->assertStatus(403);
     }
@@ -148,9 +147,9 @@ class TextbookPolicyTest extends TestCase
         $textbook = Textbook::factory()->create();
 
         $this->postJson(route('textbooks.updateStatus', $textbook->id), [
-            'status'     => 1,
+            'status' => 1,
             'is_flagged' => 0,
-            'memo'       => '',
+            'memo' => '',
         ])->assertStatus(401);
     }
 
@@ -165,11 +164,11 @@ class TextbookPolicyTest extends TestCase
         $userB = User::factory()->create();
 
         Textbook::factory()->create([
-            'user_id'  => $userA->id,
+            'user_id' => $userA->id,
             'major_id' => 1,
         ]);
         Textbook::factory()->create([
-            'user_id'  => $userB->id,
+            'user_id' => $userB->id,
             'major_id' => 1,
         ]);
 
@@ -180,7 +179,7 @@ class TextbookPolicyTest extends TestCase
 
         // レスポンスに userB のデータが含まれないことをDBで確認
         $this->assertDatabaseMissing('textbooks', [
-            'user_id'  => $userB->id,
+            'user_id' => $userB->id,
             'major_id' => 1,
         ] + ['user_id' => $userA->id]); // userB と userA が混在しないこと
     }
