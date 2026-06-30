@@ -121,14 +121,15 @@
         @endphp
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {{--
+            DashboardService::groupTextbooks() の戻り値は
+            ['items' => Collection, 'progress_rate' => int] の配列。
+            進捗率はサービス側で計算済みのため、ここでは再計算しない。
+            --}}
             @foreach($textbooks as $majorId => $group)
                 @php
                     $categoryName = $categories[$majorId] ?? '未定義の教材';
-                    $groupTotal = $group->count();
-                    $groupCompleted = $group->filter(function ($item) {
-                        return $item->progressLog && $item->progressLog->status == 2;
-                    })->count();
-                    $cardProgress = $groupTotal > 0 ? round(($groupCompleted / $groupTotal) * 100) : 0;
+                    $cardProgress = $group['progress_rate'];
                     $gradient = $cardGradients[$majorId] ?? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
                 @endphp
 

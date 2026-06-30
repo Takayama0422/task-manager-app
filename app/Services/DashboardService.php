@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Textbook;
+use Illuminate\Support\Collection;
 
 class DashboardService
 {
@@ -26,7 +27,7 @@ class DashboardService
     /**
      * 全体進捗率（%）を計算
      */
-    private function calcProgressRate($textbooks): int
+    private function calcProgressRate(Collection $textbooks): int
     {
         $total = $textbooks->count();
         if ($total === 0) {
@@ -39,28 +40,33 @@ class DashboardService
     }
 
     /**
-     * major_id ごとにグループ化し、カード単位の進捗率を付与
+     * major_id ごとにグループ化し、カード単位の進捗率を付与する
+     *
+     * Collection への動的プロパティ付与（PHP 8.2 非推奨）を避けるため、
+     * 各グループを ['items' => Collection, 'progress_rate' => int] の配列で表現する。
+     * Bladeテンプレート側で $group['items'] / $group['progress_rate'] として参照する。
      */
-    private function groupTextbooks($textbooks)
+    private function groupTextbooks(Collection $textbooks): Collection
     {
-        return $textbooks->groupBy('major_id')->map(function ($group) {
+        return $textbooks->groupBy('major_id')->map(function (Collection $group) {
             $total = $group->count();
             $completed = $group->where('is_completed', true)->count();
 
-            $group->progress_rate = $total > 0
-                ? (int) round(($completed / $total) * 100)
-                : 0;
-
-            return $group;
+            return [
+                'items' => $group,
+                'progress_rate' => $total > 0
+                    ? (int) round(($completed / $total) * 100)
+                    : 0,
+            ];
         });
     }
 
     /**
      * フラグあり または メモありのチャプターを抽出
      */
-    private function extractFlaggedChapters($textbooks)
+    private function extractFlaggedChapters(Collection $textbooks): Collection
     {
-        return $textbooks->filter(function ($textbook) {
+        return $textbooks->filter(function (Textbook $textbook) {
             $log = $textbook->progressLog;
 
             return $log->is_flagged || ! empty($log->memo);
