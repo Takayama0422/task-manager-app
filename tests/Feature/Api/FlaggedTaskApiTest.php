@@ -14,22 +14,22 @@ class FlaggedTaskApiTest extends TestCase
     // =========================================================
 
     /** @test */
-    public function フラグ付き教材が正しいJSON構造で返る(): void
+    public function フラグ付き教材が正しい_jso_n構造で返る(): void
     {
-        $user     = User::factory()->create();
+        $user = User::factory()->create();
         $textbook = Textbook::factory()->create([
-            'user_id'    => $user->id,
-            'major_id'   => 1,
-            'mid_sort'   => 2,
+            'user_id' => $user->id,
+            'major_id' => 1,
+            'mid_sort' => 2,
             'chapter_no' => 3,
         ]);
 
         ProgressLog::factory()->create([
-            'user_id'     => $user->id,
+            'user_id' => $user->id,
             'textbook_id' => $textbook->id,
-            'status'      => 1,
-            'is_flagged'  => 1,
-            'memo'        => 'テストメモ',
+            'status' => 1,
+            'is_flagged' => 1,
+            'memo' => 'テストメモ',
         ]);
 
         // Sanctum認証：actingAsで認証済みユーザーとしてリクエスト
@@ -54,7 +54,7 @@ class FlaggedTaskApiTest extends TestCase
             ])
             ->assertJsonFragment([
                 'user_id' => $user->id,
-                'count'   => 1,
+                'count' => 1,
             ]);
     }
 
@@ -65,13 +65,13 @@ class FlaggedTaskApiTest extends TestCase
 
         foreach ([1, 2, 3] as $majorId) {
             $textbook = Textbook::factory()->create([
-                'user_id'  => $user->id,
+                'user_id' => $user->id,
                 'major_id' => $majorId,
             ]);
             ProgressLog::factory()->create([
-                'user_id'     => $user->id,
+                'user_id' => $user->id,
                 'textbook_id' => $textbook->id,
-                'is_flagged'  => 1,
+                'is_flagged' => 1,
             ]);
         }
 
@@ -85,13 +85,13 @@ class FlaggedTaskApiTest extends TestCase
     /** @test */
     public function フラグなし教材は返らない(): void
     {
-        $user     = User::factory()->create();
+        $user = User::factory()->create();
         $textbook = Textbook::factory()->create(['user_id' => $user->id]);
 
         ProgressLog::factory()->create([
-            'user_id'     => $user->id,
+            'user_id' => $user->id,
             'textbook_id' => $textbook->id,
-            'is_flagged'  => 0,
+            'is_flagged' => 0,
         ]);
 
         $response = $this->actingAs($user)
@@ -104,14 +104,14 @@ class FlaggedTaskApiTest extends TestCase
     /** @test */
     public function 他ユーザーのフラグ付き教材は返らない(): void
     {
-        $userA    = User::factory()->create();
-        $userB    = User::factory()->create();
+        $userA = User::factory()->create();
+        $userB = User::factory()->create();
         $textbook = Textbook::factory()->create(['user_id' => $userB->id]);
 
         ProgressLog::factory()->create([
-            'user_id'     => $userB->id,
+            'user_id' => $userB->id,
             'textbook_id' => $textbook->id,
-            'is_flagged'  => 1,
+            'is_flagged' => 1,
         ]);
 
         // userA でアクセス → userB のデータは返らない
@@ -133,8 +133,8 @@ class FlaggedTaskApiTest extends TestCase
         $response->assertStatus(200)
             ->assertJson([
                 'user_id' => $user->id,
-                'count'   => 0,
-                'tasks'   => [],
+                'count' => 0,
+                'tasks' => [],
             ]);
     }
 
@@ -145,13 +145,13 @@ class FlaggedTaskApiTest extends TestCase
 
         foreach ([3, 1, 2] as $majorId) {
             $textbook = Textbook::factory()->create([
-                'user_id'  => $user->id,
+                'user_id' => $user->id,
                 'major_id' => $majorId,
             ]);
             ProgressLog::factory()->create([
-                'user_id'     => $user->id,
+                'user_id' => $user->id,
                 'textbook_id' => $textbook->id,
-                'is_flagged'  => 1,
+                'is_flagged' => 1,
             ]);
         }
 

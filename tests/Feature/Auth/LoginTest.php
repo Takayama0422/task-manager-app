@@ -15,12 +15,12 @@ class LoginTest extends TestCase
     public function 正しい認証情報でログインできる(): void
     {
         $user = User::factory()->create([
-            'email'    => 'test@example.com',
+            'email' => 'test@example.com',
             'password' => bcrypt('password123'),
         ]);
 
         $response = $this->post(route('login'), [
-            'email'    => 'test@example.com',
+            'email' => 'test@example.com',
             'password' => 'password123',
         ]);
 
@@ -47,12 +47,12 @@ class LoginTest extends TestCase
     public function 誤ったパスワードでログインできない(): void
     {
         User::factory()->create([
-            'email'    => 'test@example.com',
+            'email' => 'test@example.com',
             'password' => bcrypt('correct_password'),
         ]);
 
         $response = $this->post(route('login'), [
-            'email'    => 'test@example.com',
+            'email' => 'test@example.com',
             'password' => 'wrong_password',
         ]);
 
@@ -64,7 +64,7 @@ class LoginTest extends TestCase
     public function 存在しないメールアドレスでログインできない(): void
     {
         $response = $this->post(route('login'), [
-            'email'    => 'notexist@example.com',
+            'email' => 'notexist@example.com',
             'password' => 'password123',
         ]);
 
