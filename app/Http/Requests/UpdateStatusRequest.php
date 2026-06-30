@@ -16,7 +16,7 @@ class UpdateStatusRequest extends FormRequest
     {
         return [
             'status' => 'required|in:0,1,2',
-            'is_flagged' => 'required',
+            'is_flagged' => 'required|boolean',
             'memo' => 'nullable|string|max:1000',
         ];
     }

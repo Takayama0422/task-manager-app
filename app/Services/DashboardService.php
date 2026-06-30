@@ -12,7 +12,7 @@ class DashboardService
     public function getDashboardData(int $userId): array
     {
         $allTextbooks = Textbook::where('user_id', $userId)
-            ->with('progressLog')
+            ->with(['progressLog' => fn ($query) => $query->where('user_id', $userId)])
             ->get();
 
         return [
