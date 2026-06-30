@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
 class TextbookSeeder extends Seeder
@@ -23,7 +24,7 @@ class TextbookSeeder extends Seeder
             'id' => 1,
             'name' => '管理者',
             'email' => 'admin@example.com',
-            'password' => bcrypt('password'),
+            'password' => Hash::make('password'),
             'is_admin' => true,
             'created_at' => now(),
             'updated_at' => now(),

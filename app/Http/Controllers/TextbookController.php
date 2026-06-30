@@ -29,9 +29,11 @@ class TextbookController extends Controller
         $userId = auth()->id();
 
         // ⑤ user_id 条件を追加（セキュリティ修正）
+        // progressLog のリレーションは auth() に依存しないため、
+        // ここで明示的にユーザーIDで絞り込んで Eager Load する
         $textbooks = Textbook::where('user_id', $userId)
             ->where('major_id', $major_id)
-            ->with('progressLog')
+            ->with(['progressLog' => fn ($query) => $query->where('user_id', $userId)])
             ->orderBy('mid_sort')
             ->orderBy('chapter_no')
             ->get();
@@ -61,8 +63,7 @@ class TextbookController extends Controller
             ],
             [
                 'status' => $request->status,
-                'is_flagged' => filter_var($request->is_flagged, FILTER_VALIDATE_BOOLEAN)
-                    || $request->is_flagged == 1,
+                'is_flagged' => $request->boolean('is_flagged'),
                 'memo' => $request->memo,
             ]
         );

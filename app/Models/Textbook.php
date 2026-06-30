@@ -25,10 +25,11 @@ class Textbook extends Model
     }
 
     // ③ withDefault でコントローラーの if (!$progressLog) を不要に
+    // auth()->id() への依存を廃止し、非認証コンテキスト（シーダー・テスト等）でも
+    // 安全に動作するようにした。ユーザー絞り込みは呼び出し側（コントローラー）で行う。
     public function progressLog()
     {
         return $this->hasOne(ProgressLog::class)
-            ->where('user_id', auth()->id())
             ->withDefault([
                 'status' => 0,
                 'is_flagged' => 0,

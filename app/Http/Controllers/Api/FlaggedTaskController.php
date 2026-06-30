@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\ProgressLog;
+use App\Http\Resources\FlaggedTaskResource;
+use App\Models\Textbook;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -20,30 +21,20 @@ class FlaggedTaskController extends Controller
     {
         $userId = $request->user()->id;
 
-        $flaggedLogs = ProgressLog::with('textbook')
-            ->join('textbooks', 'progress_logs.textbook_id', '=', 'textbooks.id')
-            ->where('progress_logs.user_id', $userId)
-            ->where('progress_logs.is_flagged', 1)
-            ->orderBy('textbooks.major_id')
-            ->orderBy('textbooks.mid_sort')
-            ->orderBy('textbooks.chapter_no')
-            ->select('progress_logs.*')
+        $flaggedTextbooks = Textbook::where('textbooks.user_id', $userId)
+            ->whereHas('progressLog', fn ($query) => $query
+                ->where('user_id', $userId)
+                ->where('is_flagged', true))
+            ->with(['progressLog' => fn ($query) => $query->where('user_id', $userId)])
+            ->orderBy('major_id')
+            ->orderBy('mid_sort')
+            ->orderBy('chapter_no')
             ->get();
-
-        $tasks = $flaggedLogs->map(fn (ProgressLog $log) => [
-            'id' => $log->textbook->id,
-            'major_id' => $log->textbook->major_id,
-            'mid_sort' => $log->textbook->mid_sort,
-            'chapter_no' => $log->textbook->chapter_no,
-            'status' => $log->status,
-            'memo' => $log->memo,
-            'flagged_at' => $log->updated_at->toIso8601String(),
-        ]);
 
         return response()->json([
             'user_id' => $userId,
-            'count' => $tasks->count(),
-            'tasks' => $tasks->values(),
+            'count' => $flaggedTextbooks->count(),
+            'tasks' => FlaggedTaskResource::collection($flaggedTextbooks),
         ]);
     }
 }
