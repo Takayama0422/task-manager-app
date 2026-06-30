@@ -50,11 +50,21 @@ class TokenController extends Controller
      * リクエスト例:
      * DELETE /api/token
      * Authorization: Bearer 1|abc123xyz...
+     *
+     * 認証ミドルウェアの設定漏れやSanctum以外の認証経路でアクセスされた場合、
+     * currentAccessToken() が null を返すことがあるため、事前にチェックする。
      */
     public function revoke(Request $request): JsonResponse
     {
-        // 現在のリクエストに使われたトークンのみを削除
-        $request->user()->currentAccessToken()->delete();
+        $token = $request->user()?->currentAccessToken();
+
+        if (! $token) {
+            return response()->json([
+                'message' => '有効なトークンが見つかりませんでした。',
+            ], 401);
+        }
+
+        $token->delete();
 
         return response()->json(['message' => 'トークンを失効させました。']);
     }
