@@ -2,37 +2,49 @@
 
 namespace App\Models;
 
+use App\Services\TextbookCategoryService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Textbook extends Model
 {
     use HasFactory;
 
-    // ④ config化に対応したアクセサ
-    // ② display_title をモデルに移動
+    protected $fillable = [
+        'user_id',
+        'major_id',
+        'mid_sort',
+        'chapter_no',
+        'custom_title',
+    ];
+
     public function getDisplayTitleAttribute(): string
     {
-        return $this->major_id
-            ? config('textbooks.categories')[$this->major_id] ?? '未定義のカテゴリ'
-            : ($this->custom_title ?? '未定義のカテゴリ');
+        if ($this->major_id) {
+            return app(TextbookCategoryService::class)->getCategoryName($this->major_id);
+        }
+
+        return $this->custom_title ?? '未定義のカテゴリ';
     }
 
-    // ⑥ 完了判定アクセサ
     public function getIsCompletedAttribute(): bool
     {
-        return $this->progressLog?->status == 2;
+        return $this->progressLog?->status === ProgressLog::STATUS_COMPLETED;
     }
 
-    // ③ withDefault でコントローラーの if (!$progressLog) を不要に
-    // auth()->id() への依存を廃止し、非認証コンテキスト（シーダー・テスト等）でも
-    // 安全に動作するようにした。ユーザー絞り込みは呼び出し側（コントローラー）で行う。
-    public function progressLog()
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function progressLog(): HasOne
     {
         return $this->hasOne(ProgressLog::class)
             ->withDefault([
-                'status' => 0,
-                'is_flagged' => 0,
+                'status' => ProgressLog::STATUS_NOT_STARTED,
+                'is_flagged' => false,
                 'memo' => '',
             ]);
     }

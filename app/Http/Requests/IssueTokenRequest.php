@@ -4,17 +4,18 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateNameRequest extends FormRequest
+class IssueTokenRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->is_admin === true;
+        return true;
     }
 
     public function rules(): array
     {
         return [
-            'category_name' => 'required|string|max:255',
+            'email' => ['required', 'email'],
+            'password' => ['required'],
         ];
     }
 }

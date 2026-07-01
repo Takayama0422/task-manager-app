@@ -4,12 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProgressLog extends Model
 {
     use HasFactory;
 
-    // 🌟【重要】一括保存（作成・更新）を許可するカラムをここにすべて指定します
+    public const STATUS_NOT_STARTED = 0;
+
+    public const STATUS_IN_PROGRESS = 1;
+
+    public const STATUS_COMPLETED = 2;
+
     protected $fillable = [
         'user_id',
         'textbook_id',
@@ -18,10 +24,17 @@ class ProgressLog extends Model
         'memo',
     ];
 
-    /**
-     * 必要であれば、Textbookモデルへのリレーション定義もここにあります
-     */
-    public function textbook()
+    protected $casts = [
+        'status' => 'integer',
+        'is_flagged' => 'boolean',
+    ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function textbook(): BelongsTo
     {
         return $this->belongsTo(Textbook::class);
     }

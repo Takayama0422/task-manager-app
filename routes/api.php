@@ -18,7 +18,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 // ① トークン発行（認証不要）
-Route::post('/token', [TokenController::class, 'issue']);
+Route::post('/token', [TokenController::class, 'issue'])
+    ->middleware('throttle:token-issue');
 
 // ② 認証済みユーザーのみアクセス可能
 Route::middleware('auth:sanctum')->group(function () {
