@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\IssueTokenRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,24 +22,18 @@ class TokenController extends Controller
      * レスポンス例:
      * { "token": "1|abc123xyz..." }
      */
-    public function issue(Request $request): JsonResponse
+    public function issue(IssueTokenRequest $request): JsonResponse
     {
-        $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
-
         $user = User::where('email', $request->email)->first();
 
-        // ユーザーが存在しない、またはパスワードが一致しない場合
         if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['メールアドレスまたはパスワードが正しくありません。'],
             ]);
         }
 
-        // トークンを発行して返す
-        // 'api-access' はトークン名（用途の識別子）
+        $user->tokens()->where('name', 'api-access')->delete();
+
         $token = $user->createToken('api-access')->plainTextToken;
 
         return response()->json(['token' => $token], 201);
@@ -50,9 +45,6 @@ class TokenController extends Controller
      * リクエスト例:
      * DELETE /api/token
      * Authorization: Bearer 1|abc123xyz...
-     *
-     * 認証ミドルウェアの設定漏れやSanctum以外の認証経路でアクセスされた場合、
-     * currentAccessToken() が null を返すことがあるため、事前にチェックする。
      */
     public function revoke(Request $request): JsonResponse
     {

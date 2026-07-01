@@ -57,7 +57,7 @@
         </header>
 
         {{-- ⚠️ フラグあり または メモあり のチャプター --}}
-        @if($flaggedChapters->count() > 0)
+        @if($attentionChapters->count() > 0)
             <div class="mb-10 bg-amber-50/60 border border-amber-100 rounded-2xl p-6 shadow-sm">
                 <div class="flex items-center gap-2 mb-4">
                     <span class="flex h-3 w-3 relative">
@@ -65,12 +65,12 @@
                             class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
                     </span>
-                    <h2 class="text-base font-black text-amber-900">📋 質問あり・メモ記録済みのチャプター（{{ $flaggedChapters->count() }}件）
+                    <h2 class="text-base font-black text-amber-900">📋 質問あり・メモ記録済みのチャプター（{{ $attentionChapters->count() }}件）
                     </h2>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    @foreach($flaggedChapters as $chapter)
+                    @foreach($attentionChapters as $chapter)
                         @php $parentTitle = $categories[$chapter->major_id] ?? '未定義の教材'; @endphp
                         <div
                             class="bg-white border border-amber-100 rounded-xl p-3 shadow-sm hover:border-amber-200 transition-colors">
